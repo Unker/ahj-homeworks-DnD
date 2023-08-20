@@ -1,0 +1,58 @@
+.container-tasks {
+    background-color: #107abb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    flex-direction: row;
+    width: 100%; 
+    min-height: 400px;
+}
+  
+.list_tasks {
+    background-color: #dee2e5;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    min-height: 100px;
+    flex-grow: 1; /* Занимать всю доступную ширину */
+    flex-basis: 0; /* Начальная ширина */
+    flex-shrink: 1; /* Может уменьшаться по ширине */
+    justify-content: space-between;
+}
+
+.tasks_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-right: 10px;
+}
+
+.tasks_header_text {
+    margin: 0px;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.task_header_options {
+    color: darkgray;
+    cursor: pointer;
+    /* display: inline-block; */
+}
+
+.task_header_options:hover {
+    color: lightgray;
+}
+
+.adder_card {
+    color: darkgray;
+    cursor: pointer;
+    margin-top: auto; /* Разместить div внизу */
+}
+
+.adder_card:hover {
+    color: lightgray;
+}
