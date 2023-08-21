@@ -21,14 +21,15 @@ export default class Task {
     optionsBtn.textContent = '...';
     header.appendChild(optionsBtn);
 
+    
+    const task_list = document.createElement('div');
+    task_list.classList.add('task_list');
+    tasks.appendChild(task_list);
+
     const adderCard = document.createElement('div');
     adderCard.classList.add('adder_card');
     adderCard.textContent = '+ Add another card';
     tasks.appendChild(adderCard);
-
-    const task_list = document.createElement('div');
-    task_list.classList.add('task_list');
-    tasks.appendChild(task_list);
 
     adderCard.addEventListener('click', (e) => this.onAddCardClick(e));
 
@@ -42,23 +43,63 @@ export default class Task {
   onMouseDownTask(e) {
     e.preventDefault();
 
-    this.draggingEl = e.target;
+    const actualEl = e.target;
+
     // если элемент не таск, то игнорируем событие
-    if (!this.draggingEl.classList.contains('task_card')) {
+    if (!actualEl.classList.contains('task_card')) {
       return;
     }
-    this.draggingEl.classList.add('grabbed');
 
-    document.documentElement.addEventListener('mouseup', this.onMouseUp(e));
-    document.documentElement.addEventListener('mouseover', this.onMouseOver(e));
+    this.dragging = { 'el': actualEl };
+    this.dragging['el'].classList.add('dragged');
+    this.dragging['index'] = this.getIndexInParent(actualEl);
+    const rect = actualEl.getBoundingClientRect();
+    this.dragging['offsetX'] = e.clientX - rect.left;
+    this.dragging['offsetY'] = e.clientY - rect.top;
+
+    this.onMouseUp = this.onMouseUp.bind(this);
+    this.onMouseOver = this.onMouseOver.bind(this);
+    document.documentElement.addEventListener('mouseup', this.onMouseUp);
+    document.documentElement.addEventListener('mouseover', this.onMouseOver);
   }
 
-  onMouseUp() {
+  onMouseUp(e) {
     console.log('up');
+    const mouseUpItem = e.target;
+
+    if (this.dragging && mouseUpItem.classList.contains('task_card')) {
+      const dropIndex = this.getIndexInParent(mouseUpItem);
+
+      // Вставляем элемент перед или после целевого элемента
+      if (this.dragging['index'] < dropIndex) {
+        mouseUpItem.parentElement.insertBefore(this.dragging['el'], mouseUpItem.nextElementSibling);
+      } else {
+        mouseUpItem.parentElement.insertBefore(this.dragging['el'], mouseUpItem);
+      }
+    }
+    console.log(this.dragging['el'])
+    this.dragging['el'].classList.remove('dragged');
+    this.dragging = undefined;
+
+    document.documentElement.removeEventListener('mouseup', this.onMouseUp);
+    document.documentElement.removeEventListener('mouseover', this.onMouseOver);
+
   }
 
-  onMouseOver() {
+  onMouseOver(e) {
     console.log('over');
+    console.log(e);
+    if (this.dragging) {
+      // this.dragging['el'].style.top = e.clientY + 'px';
+      // this.dragging['el'].style.left = e.clientX + 'px';
+      const posX = e.clientX - this.offsetX;
+      const posY = e.clientY - this.offsetY;
+      this.dragging['el'].style.transform = `translate(${posX}px, ${posY}px)`;
+    }
+  }
+
+  getIndexInParent(element) {
+    return Array.from(element.parentElement.children).indexOf(element);
   }
 
   onAddCardClick(e) {
@@ -102,8 +143,8 @@ export default class Task {
       card_text.focus();
     });
 
-    // this.task_list.appendChild(card);
-    this.tasks.insertBefore(card, this.adderCard);
+    this.task_list.appendChild(card);
+    // this.tasks.insertBefore(card, this.adderCard);
     
   }
 }

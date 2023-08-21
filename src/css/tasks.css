@@ -60,6 +60,12 @@
     cursor: grab;
 }
 
+.grabbed{ 
+    transition: none;
+    z-index: 1000;
+    /* position: absolute; */
+}
+
 .content_card {
     padding: 5px;
     font-size: 0.8em;
@@ -74,7 +80,6 @@
     top: 0;
     right: 0;
     padding: 5px;
-    /* cursor: pointer; */
     display: none;
 }
 
