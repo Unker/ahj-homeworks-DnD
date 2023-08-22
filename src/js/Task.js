@@ -38,6 +38,13 @@ export default class Task {
     this.tasks = tasks;
     this.task_list = task_list;
     this.adderCard = adderCard;
+
+    // Добавляем переменные для отслеживания перемещения
+    this.dragging = null; // Элемент, который перетаскивается
+    this.startX = 0; // Начальная позиция курсора по оси X относительно элемента
+    this.startY = 0; // Начальная позиция курсора по оси Y относительно элемента
+
+    this.tmp = 1;
   }
 
   onMouseDownTask(e) {
@@ -45,56 +52,62 @@ export default class Task {
 
     const actualEl = e.target;
 
-    // если элемент не таск, то игнорируем событие
+    // Если элемент не task_card, игнорируем событие
     if (!actualEl.classList.contains('task_card')) {
       return;
     }
 
-    this.dragging = { 'el': actualEl };
-    this.dragging['el'].classList.add('dragged');
-    this.dragging['index'] = this.getIndexInParent(actualEl);
-    const rect = actualEl.getBoundingClientRect();
-    this.dragging['offsetX'] = e.clientX - rect.left;
-    this.dragging['offsetY'] = e.clientY - rect.top;
+    // Сохраняем элемент, который перетаскивается
+    this.dragging = actualEl;
+
+    // Рассчитываем начальные позиции курсора относительно элемента
+    const rect = this.dragging.getBoundingClientRect();
+    this.startX = e.clientX - rect.left;
+    this.startY = e.clientY - rect.top;
+    
+    this.dragging.classList.add('dragging');
+
+    // Устанавливаем начальные координаты
+    this.dragging.style.left = rect.left + 'px';
+    this.dragging.style.top = rect.top + 'px';
+
+    // Перемещаем элемент в конец контейнера для отображения выше других элементов
+    this.dragging.parentNode.appendChild(this.dragging);
 
     this.onMouseUp = this.onMouseUp.bind(this);
-    this.onMouseOver = this.onMouseOver.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
     document.documentElement.addEventListener('mouseup', this.onMouseUp);
-    document.documentElement.addEventListener('mouseover', this.onMouseOver);
+    document.documentElement.addEventListener('mouseover', this.onMouseMove);
+  }
+
+  onMouseMove(e) {
+    // Обновляем позицию элемента в соответствии с перемещением мыши
+    if (this.dragging) {
+      const posX = e.clientX - this.startX;
+      const posY = e.clientY - this.startY;
+      this.dragging.style.left = posX + 'px';
+      this.dragging.style.top = posY + 'px';
+    }
   }
 
   onMouseUp(e) {
-    console.log('up');
-    const mouseUpItem = e.target;
-
-    if (this.dragging && mouseUpItem.classList.contains('task_card')) {
-      const dropIndex = this.getIndexInParent(mouseUpItem);
-
-      // Вставляем элемент перед или после целевого элемента
-      if (this.dragging['index'] < dropIndex) {
-        mouseUpItem.parentElement.insertBefore(this.dragging['el'], mouseUpItem.nextElementSibling);
-      } else {
-        mouseUpItem.parentElement.insertBefore(this.dragging['el'], mouseUpItem);
-      }
-    }
-    console.log(this.dragging['el'])
-    this.dragging['el'].classList.remove('dragged');
-    this.dragging = undefined;
-
-    document.documentElement.removeEventListener('mouseup', this.onMouseUp);
-    document.documentElement.removeEventListener('mouseover', this.onMouseOver);
-
-  }
-
-  onMouseOver(e) {
-    console.log('over');
-    console.log(e);
     if (this.dragging) {
-      // this.dragging['el'].style.top = e.clientY + 'px';
-      // this.dragging['el'].style.left = e.clientX + 'px';
-      const posX = e.clientX - this.offsetX;
-      const posY = e.clientY - this.offsetY;
-      this.dragging['el'].style.transform = `translate(${posX}px, ${posY}px)`;
+      // // Убираем абсолютное позиционирование и возвращаем элемент в поток документа
+      this.dragging.classList.remove('dragging');
+
+      // Ставим элемент на место, где произошло событие mouseup
+      const target = e.target.closest('.task_card');
+      if (target) {
+        const rect = target.getBoundingClientRect();
+        const dropY = e.clientY - rect.top;
+        if (dropY > rect.height / 2) {
+          target.parentNode.insertBefore(this.dragging, target.nextSibling);
+        } else {
+          target.parentNode.insertBefore(this.dragging, target);
+        }
+      }
+
+      this.dragging = null;
     }
   }
 
@@ -128,6 +141,10 @@ export default class Task {
     card_text.innerText = 'Нажмите, чтобы начать редактирование';
     card.appendChild(card_text);
 
+    //todo del
+    card_text.setAttribute('contenteditable', 'true');
+    card_text.innerText = this.tmp++;
+
     const card_text_edit = document.createElement("div");
     card_text_edit.classList.add("card_text_edit");
     card_text_edit.innerText = '\u270E';
@@ -135,7 +152,6 @@ export default class Task {
 
     card_text_edit.addEventListener('click', () => {
       // если это первое редактирование, то удалим предыдущий текст
-      console.log(card_text.getAttribute('contenteditable'))
       if (card_text.getAttribute('contenteditable') === null) {
         card_text.textContent = '';
       }
@@ -143,8 +159,6 @@ export default class Task {
       card_text.focus();
     });
 
-    this.task_list.appendChild(card);
-    // this.tasks.insertBefore(card, this.adderCard);
-    
+    this.task_list.appendChild(card);   
   }
 }

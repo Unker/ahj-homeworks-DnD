@@ -50,7 +50,7 @@
 }
 
 .task_card {
-    position: relative;
+    position: static;
     border-radius: 3px;
     border: 1px solid #ccc;
     background-color: azure;
@@ -60,10 +60,9 @@
     cursor: grab;
 }
 
-.grabbed{ 
-    transition: none;
+.task_card.dragging{ 
     z-index: 1000;
-    /* position: absolute; */
+    position: absolute;
 }
 
 .content_card {
