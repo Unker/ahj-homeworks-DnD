@@ -44,11 +44,15 @@ export default class Task {
     this.startX = 0; // Начальная позиция курсора по оси X относительно элемента
     this.startY = 0; // Начальная позиция курсора по оси Y относительно элемента
 
-    this.tmp = 1;
+    this.tmp = 1; // todo del
   }
 
   onMouseDownTask(e) {
     e.preventDefault();
+
+    if (e.button != 0) {
+      return;
+    }
 
     const actualEl = e.target;
 
@@ -59,12 +63,17 @@ export default class Task {
 
     // Сохраняем элемент, который перетаскивается
     this.dragging = actualEl;
-
+    
     // Рассчитываем начальные позиции курсора относительно элемента
     const rect = this.dragging.getBoundingClientRect();
-    console.log(rect)
     this.startX = e.clientX - rect.left;
     this.startY = e.clientY - rect.top;
+    
+    // Добавляем пустой элемент на месте перемещаемого элемента
+    this.placeholder = document.createElement('div');
+    this.placeholder.style.width = this.dragging.offsetWidth + 'px';
+    this.placeholder.style.height = this.dragging.offsetHeight + 'px';
+    this.dragging.parentNode.insertBefore(this.placeholder, this.dragging);
     
     this.dragging.classList.add('dragging');
 
@@ -73,13 +82,10 @@ export default class Task {
     this.dragging.style.top = rect.top + 'px';
     this.dragging.style.width = rect.width + 'px';
 
-    // Перемещаем элемент в конец контейнера для отображения выше других элементов
-    this.dragging.parentNode.appendChild(this.dragging);
-
     this.onMouseUp = this.onMouseUp.bind(this);
     this.onMouseMove = this.onMouseMove.bind(this);
     document.documentElement.addEventListener('mouseup', this.onMouseUp);
-    document.documentElement.addEventListener('mouseover', this.onMouseMove);
+    document.documentElement.addEventListener('mousemove', this.onMouseMove);
   }
 
   onMouseMove(e) {
@@ -89,17 +95,14 @@ export default class Task {
       const posY = e.clientY - this.startY;
       this.dragging.style.left = posX + 'px';
       this.dragging.style.top = posY + 'px';
-      console.log(this.dragging.style.width)
     }
   }
 
   onMouseUp(e) {
     if (this.dragging) {
-      // // Убираем абсолютное позиционирование и возвращаем элемент в поток документа
-      this.dragging.classList.remove('dragging');
-
+           
       // Ставим элемент на место, где произошло событие mouseup
-      const target = e.target.closest('.task_card');
+      const target = e.target.closest('.task_card:not(.dragging)');
       if (target) {
         const rect = target.getBoundingClientRect();
         const dropY = e.clientY - rect.top;
@@ -108,9 +111,24 @@ export default class Task {
         } else {
           target.parentNode.insertBefore(this.dragging, target);
         }
+      } else {
+        // Если target не найден, возвращаем элемент на исходное место
+        const originalContainer = this.dragging.parentNode;
+        originalContainer.insertBefore(this.dragging, this.placeholder);
+      }
+
+      // // Убираем абсолютное позиционирование и возвращаем элемент в поток документа
+      this.dragging.classList.remove('dragging');
+
+      if (this.placeholder && this.placeholder.parentNode) {
+        this.placeholder.parentNode.removeChild(this.placeholder);
       }
 
       this.dragging = null;
+      this.placeholder = null;
+
+      document.documentElement.removeEventListener('mouseup', this.onMouseUp);
+      document.documentElement.removeEventListener('mouseover', this.onMouseMove);
     }
   }
 

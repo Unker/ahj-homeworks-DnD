@@ -63,6 +63,7 @@
     z-index: 1000;
     position: absolute;
     transform: rotate(3deg);
+    pointer-events: none;
 }
 
 .content_card {
