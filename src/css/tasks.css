@@ -42,7 +42,6 @@
 .task_header_options {
     color: darkgray;
     cursor: pointer;
-    /* display: inline-block; */
 }
 
 .task_header_options:hover {
@@ -63,6 +62,7 @@
 .task_card.dragging{ 
     z-index: 1000;
     position: absolute;
+    transform: rotate(3deg);
 }
 
 .content_card {

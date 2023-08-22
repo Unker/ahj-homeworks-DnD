@@ -62,6 +62,7 @@ export default class Task {
 
     // Рассчитываем начальные позиции курсора относительно элемента
     const rect = this.dragging.getBoundingClientRect();
+    console.log(rect)
     this.startX = e.clientX - rect.left;
     this.startY = e.clientY - rect.top;
     
@@ -70,6 +71,7 @@ export default class Task {
     // Устанавливаем начальные координаты
     this.dragging.style.left = rect.left + 'px';
     this.dragging.style.top = rect.top + 'px';
+    this.dragging.style.width = rect.width + 'px';
 
     // Перемещаем элемент в конец контейнера для отображения выше других элементов
     this.dragging.parentNode.appendChild(this.dragging);
@@ -87,6 +89,7 @@ export default class Task {
       const posY = e.clientY - this.startY;
       this.dragging.style.left = posX + 'px';
       this.dragging.style.top = posY + 'px';
+      console.log(this.dragging.style.width)
     }
   }
 
