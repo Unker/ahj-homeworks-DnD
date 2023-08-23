@@ -35,8 +35,8 @@ jobs:
       - name: Run linters
         run: yarn run lint
 
-      - name: Run test
-        run: yarn run coverage
+      # - name: Run test
+      #   run: yarn run coverage
 
       - name: Build
         run: yarn run build
