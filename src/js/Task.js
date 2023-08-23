@@ -146,6 +146,10 @@ export default class Task {
     const card = document.createElement("div");
     card.classList.add("task_card");
     
+    const tmp = document.createElement("div");
+    tmp.classList.add("close_button_container");
+    card.appendChild(tmp);
+
     const closeButton = document.createElement("span");
     closeButton.classList.add("close_button");
     closeButton.innerText = '×';
@@ -156,7 +160,8 @@ export default class Task {
       card.remove(); 
     });
     
-    card.appendChild(closeButton);
+    // card.appendChild(closeButton);
+    tmp.appendChild(closeButton);
 
     // блок ввода текста
     const card_text = document.createElement("div");

@@ -70,13 +70,8 @@
     pointer-events: none;
 }
 
-.content_card {
-    padding: 5px;
-    font-size: 0.8em;
-}
-
-.content_card[contenteditable='true']:hover {
-    cursor: text;
+.close_button_container{
+    position: relative;
 }
 
 .close_button {
@@ -90,6 +85,15 @@
 .task_card:hover .close_button {
     display: block;
     cursor: pointer;
+}
+
+.content_card {
+    padding: 5px;
+    font-size: 0.8em;
+}
+
+.content_card[contenteditable='true']:hover {
+    cursor: text;
 }
 
 .card_text_edit {
