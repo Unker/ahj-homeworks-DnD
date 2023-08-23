@@ -1,24 +1,25 @@
-import Task from "./Task";
+import Task from './Task';
 
 const container = document.querySelector('.container');
 
 const tasks = container.querySelectorAll('.task');
 const task1 = tasks[0];
 
-const container_tasks = document.createElement('div');
-container_tasks.classList.add('container-tasks');
-task1.appendChild(container_tasks);
+const containerTasks = document.createElement('div');
+containerTasks.classList.add('container-tasks');
+task1.appendChild(containerTasks);
 
-const tasks_todo = new Task(container_tasks, 'todo');
-const tasks_in_progress = new Task(
-  container_tasks,
-  'in progress'
+const tasksTodo = new Task(containerTasks, 'todo');
+const tasksInProgress = new Task(
+  containerTasks,
+  'in progress',
 );
-const tasks_done = new Task(container_tasks, 'done');
+
+// eslint-disable-next-line no-unused-vars
+const tasksDone = new Task(containerTasks, 'done');
 
 // заполнение тестовыми данными
-['1','22','333'].forEach((text) => tasks_todo.addCard(text));
-['Task1','Task2','Task3'].forEach((text) => {
-  tasks_in_progress.addCard(text)
+['1', '22', '333'].forEach((text) => tasksTodo.addCard(text));
+['Task1', 'Task2', 'Task3'].forEach((text) => {
+  tasksInProgress.addCard(text);
 });
-
