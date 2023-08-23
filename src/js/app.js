@@ -16,3 +16,9 @@ const tasks_in_progress = new Task(
 );
 const tasks_done = new Task(container_tasks, 'done');
 
+// заполнение тестовыми данными
+['1','22','333'].forEach((text) => tasks_todo.addCard(text));
+['Task1','Task2','Task3'].forEach((text) => {
+  tasks_in_progress.addCard(text)
+});
+

@@ -48,6 +48,10 @@
     color: lightgray;
 }
 
+.task_list {
+    flex-grow: 1;
+}
+
 .task_card {
     position: static;
     border-radius: 3px;

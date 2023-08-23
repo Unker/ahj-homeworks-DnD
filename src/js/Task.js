@@ -66,6 +66,7 @@ export default class Task {
     
     // Рассчитываем начальные позиции курсора относительно элемента
     const rect = this.dragging.getBoundingClientRect();
+    console.log(rect)
     this.startX = e.clientX - rect.left;
     this.startY = e.clientY - rect.top;
     
@@ -89,28 +90,33 @@ export default class Task {
   }
 
   onMouseMove(e) {
+    if (!this.dragging) return;
+    
     // Обновляем позицию элемента в соответствии с перемещением мыши
-    if (this.dragging) {
-      const posX = e.clientX - this.startX;
-      const posY = e.clientY - this.startY;
-      this.dragging.style.left = posX + 'px';
-      this.dragging.style.top = posY + 'px';
-    }
+    const posX = e.clientX - this.startX;
+    const posY = e.clientY - this.startY;
+    this.dragging.style.left = posX + 'px';
+    this.dragging.style.top = posY + 'px';
   }
 
   onMouseUp(e) {
     if (this.dragging) {
+
+      this.dragging.style = undefined;
            
       // Ставим элемент на место, где произошло событие mouseup
-      const target = e.target.closest('.task_card:not(.dragging)');
-      if (target) {
-        const rect = target.getBoundingClientRect();
+      const targetTask = e.target.closest('.task_card:not(.dragging)');
+      const targetList = e.target.closest('.task_list');
+      if (targetTask) {
+        const rect = targetTask.getBoundingClientRect();
         const dropY = e.clientY - rect.top;
         if (dropY > rect.height / 2) {
-          target.parentNode.insertBefore(this.dragging, target.nextSibling);
+          targetTask.parentNode.insertBefore(this.dragging, targetTask.nextSibling);
         } else {
-          target.parentNode.insertBefore(this.dragging, target);
+          targetTask.parentNode.insertBefore(this.dragging, targetTask);
         }
+      } else if (targetList) {
+        targetList.appendChild(this.dragging);
       } else {
         // Если target не найден, возвращаем элемент на исходное место
         const originalContainer = this.dragging.parentNode;
@@ -132,15 +138,11 @@ export default class Task {
     }
   }
 
-  getIndexInParent(element) {
-    return Array.from(element.parentElement.children).indexOf(element);
-  }
-
   onAddCardClick(e) {
-    this.#addCard();
+    this.addCard();
   }
 
-  #addCard() {
+  addCard(textTask=undefined) {
     const card = document.createElement("div");
     card.classList.add("task_card");
     
@@ -159,12 +161,15 @@ export default class Task {
     // блок ввода текста
     const card_text = document.createElement("div");
     card_text.classList.add("content_card");
-    card_text.innerText = 'Нажмите, чтобы начать редактирование';
-    card.appendChild(card_text);
+    if (!textTask) {
+      card_text.innerText = 'Нажмите, чтобы начать редактирование';
 
-    //todo del
-    card_text.setAttribute('contenteditable', 'true');
-    card_text.innerText = this.tmp++;
+    } else {
+      card_text.setAttribute('contenteditable', 'true');
+      card_text.innerText = textTask;
+    }
+    
+    card.appendChild(card_text);
 
     const card_text_edit = document.createElement("div");
     card_text_edit.classList.add("card_text_edit");
