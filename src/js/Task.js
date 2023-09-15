@@ -64,6 +64,10 @@ export default class Task {
     this.startX = e.clientX - rect.left;
     this.startY = e.clientY - rect.top;
 
+    // Запоминаем соседей, чтобы вернуть элемент на место в случае невозможности вставки
+    this.previousNeighbour = this.dragging.previousElementSibling;
+    this.nextNeighbour = this.dragging.nextElementSibling;
+
     // Добавляем пустой элемент на месте перемещаемого элемента
     this.placeholder = document.createElement('div');
     this.placeholder.style.width = `${this.dragging.offsetWidth}px`;
@@ -91,6 +95,12 @@ export default class Task {
     const posY = e.clientY - this.startY;
     this.dragging.style.left = `${posX}px`;
     this.dragging.style.top = `${posY}px`;
+
+    // падение проекции при перемещении карточки
+    const { target } = e;
+    if (target.classList.contains('task_card')) {
+      target.parentNode.insertBefore(this.placeholder, target);
+    }
   }
 
   onMouseUp(e) {
@@ -99,22 +109,35 @@ export default class Task {
     this.dragging.style = undefined;
 
     // Ставим элемент на место, где произошло событие mouseup
-    const targetTask = e.target.closest('.task_card:not(.dragging)');
-    const targetList = e.target.closest('.task_list');
-    if (targetTask) {
-      const rect = targetTask.getBoundingClientRect();
-      const dropY = e.clientY - rect.top;
-      if (dropY > rect.height / 2) {
-        targetTask.parentNode.insertBefore(this.dragging, targetTask.nextSibling);
-      } else {
-        targetTask.parentNode.insertBefore(this.dragging, targetTask);
-      }
-    } else if (targetList) {
+    const { target } = e;
+    // Определяем соседей для вставки
+    let previous = target.previousElementSibling;
+    if (previous && !previous.classList.contains('task_card')) {
+      previous = null;
+    }
+    let next = target.nextElementSibling;
+    if (next && !next.classList.contains('task_card')) {
+      next = null;
+    }
+
+    const targetList = target.closest('.task_list');
+    let container = targetList;
+
+    if (!targetList) {
+      // Если targetList не найден, возвращаем элемент на исходное место
+      previous = this.previousNeighbour;
+      next = this.nextNeighbour;
+      container = this.dragging.parentNode;
+    } else if (targetList && !previous && !next) {
       targetList.appendChild(this.dragging);
+    }
+
+    if (previous) {
+      container.insertBefore(this.dragging, previous.nextSibling);
+    } else if (next) {
+      container.insertBefore(this.dragging, next);
     } else {
-      // Если target не найден, возвращаем элемент на исходное место
-      const originalContainer = this.dragging.parentNode;
-      originalContainer.insertBefore(this.dragging, this.placeholder);
+      container.appendChild(this.dragging);
     }
 
     // // Убираем абсолютное позиционирование и возвращаем элемент в поток документа
