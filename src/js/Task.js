@@ -99,7 +99,13 @@ export default class Task {
     // падение проекции при перемещении карточки
     const { target } = e;
     if (target.classList.contains('task_card')) {
-      target.parentNode.insertBefore(this.placeholder, target);
+      const rect = target.getBoundingClientRect();
+      const dropY = e.clientY - rect.top;
+      if (dropY > rect.height / 2) {
+        target.parentNode.insertBefore(this.placeholder, target.nextSibling);
+      } else {
+        target.parentNode.insertBefore(this.placeholder, target);
+      }
     }
   }
 
