@@ -63,11 +63,14 @@
     cursor: grab;
 }
 
-.task_card.dragging{ 
+.task_list .task_card.dragging { 
     z-index: 1000;
     position: absolute;
     transform: rotate(3deg);
     pointer-events: none;
+    cursor: grabbing;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.3); /* Добавление более выразительной тени */
+    transition: transform 0.3s ease-in-out; /* Добавление анимации для плавного изменения transform */
 }
 
 .close_button_container{
